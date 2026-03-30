@@ -10,6 +10,9 @@ load_dotenv()
 app = Flask(__name__)
 API_KEY = os.getenv("API_KEY")
 
+if not API_KEY:
+    raise Exception("Missing API_KEY environment variable")
+
 def str_to_bool(value):
     return str(value).lower() in ["true", "t", "yes", "1", "on"]
 
@@ -58,7 +61,9 @@ def all_cafes():
 @app.route("/search")
 def search():
     location = request.args.get('loc', '').strip()
-    matches = db.session.execute(db.select(Cafe).where(Cafe.location == location)).scalars().all()
+    if not location:
+        return jsonify(error={"Bad Request": "Please provide a location via ?loc=..."}), 400
+    matches = db.session.execute(db.select(Cafe).where(Cafe.location.ilike(f"%{location}%"))).scalars().all()
     if matches:
         return jsonify(cafes=[cafe.to_dict() for cafe in matches])
     else:
@@ -66,6 +71,9 @@ def search():
 
 @app.route("/add", methods=["POST"])
 def add_cafe():
+    required_fields = ["name", "map_url", "img_url", "location", "seats"]
+    if not all(request.form.get(field) for field in required_fields):
+        return jsonify(error={"Bad Request": "Missing one or more required fields."}), 400
     existing_cafe = db.session.execute(db.select(Cafe).where(Cafe.name == request.form.get('name'))).scalar()
     if existing_cafe:
         return jsonify(error={"Conflict": "A cafe with that name already exists in the database."}), 409
@@ -83,23 +91,25 @@ def add_cafe():
     )
     db.session.add(cafe_to_add)
     db.session.commit()
-    return jsonify(response={"success": "Successfully added the new cafe"})
+    return jsonify(response={"success": "Successfully added the new cafe"}), 201
 
 @app.route("/update-price/<int:cafe_id>", methods=["PATCH"])
-def update(cafe_id):
+def update_price(cafe_id):
     new_price = request.form.get('new_price')
-    cafe_to_update = db.get(Cafe, cafe_id)
+    if not new_price:
+        return jsonify(error={"Bad Request": "Please provide a new price value"}), 400
+    cafe_to_update = db.session.get(Cafe, cafe_id)
     if cafe_to_update is None:
         return jsonify(error={"Not found": "Sorry, a cafe with that id was not found in the database."}), 404
     cafe_to_update.coffee_price = new_price
     db.session.commit()
     return jsonify(response={"success": "Successfully updated the price."}), 200
 
-@app.route("/report-closed/<int:cafe_id>", methods=["DELETE"])
+@app.route("/delete/<int:cafe_id>", methods=["DELETE"])
 def delete_cafe(cafe_id):
     api_key = request.args.get('api-key')
     if api_key == API_KEY:
-        cafe_to_delete = db.get(Cafe, cafe_id)
+        cafe_to_delete = db.session.get(Cafe, cafe_id)
         if cafe_to_delete is None:
             return jsonify(error={"Not found": "Sorry, a cafe with that id was not found in the database."}), 404
         db.session.delete(cafe_to_delete)

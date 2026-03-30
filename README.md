@@ -6,9 +6,8 @@
 ![SQLite](https://img.shields.io/badge/SQLite-Database-003B57?logo=sqlite&logoColor=white)
 ![API](https://img.shields.io/badge/API-RESTful-01D277)
 
-### A RESTful API built with Flask for managing and querying cafés.  
+### A RESTful Flask API for managing and querying cafés, with support for filtering, random selection, updates, and protected deletion.
 
-Supports filtering, random selection, updates, and secure deletion.
 
 ---
 
@@ -45,7 +44,14 @@ Supports filtering, random selection, updates, and secure deletion.
 - REST API design
 
 ---
+## ⚙️ How It Works
 
+- Flask serves REST-style endpoints
+- SQLAlchemy handles database operations
+- Query parameters and form data are used for filtering and updates
+- Responses are returned in JSON format
+- Protected delete requests require a valid API key
+---
 ## 📂 Project Structure
 
     flask-cafes-api/
@@ -64,7 +70,6 @@ Supports filtering, random selection, updates, and secure deletion.
 
 ## ⚙️ Installation
 
-
     git clone https://github.com/fernandogrh/flask-cafes-api.git
     cd flask-cafes-api
     pip install -r requirements.txt
@@ -73,11 +78,9 @@ Supports filtering, random selection, updates, and secure deletion.
 
 ## 🔑 Environment Variables
 
-
-Create a .env file:
+Copy `.env.example` and rename it to `.env`, then add:
 
     API_KEY=your_secret_api_key
-
 --- 
 ## ▶️ Run the App
 
@@ -124,19 +127,21 @@ Form Data:
 
 
 ### 🔹 Delete Café (Protected)
-    DELETE /report-closed/<cafe_id>?api-key=YOUR_API_KEY
+    DELETE /delete/<cafe_id>?api-key=YOUR_API_KEY
 
 ---
 
 ## 📄 Example Response
 
     {
-    "name": "Cafe Nero",
-    "location": "London",
-    "has_wifi": true,
-    "coffee_price": "£2.50"
+        "cafe": {
+            "name": "Cafe Nero",
+            "location": "London",
+            "has_wifi": true,
+            "coffee_price": "£2.50"
+        }
     }
-
+---
 
 
 ## 🧩 Key Concepts Demonstrated
@@ -151,12 +156,23 @@ Form Data:
 - Data serialization
 
 - HTTP status codes
+---
 
 ## 📌 Notes
-- This project is built for learning and portfolio purposes.
+- This project was built for learning and portfolio purposes.
+- A sample SQLite database is included for demonstration.
+---
 
-- The database (cafes.db) is included for demonstration.
+## 🧠 What I Learned
 
+- Designing RESTful APIs with multiple HTTP methods (GET, POST, PATCH, DELETE)
+- Structuring Flask applications for clean route handling
+- Using SQLAlchemy ORM for database modeling and queries
+- Validating user input and handling edge cases
+- Implementing API key protection for sensitive endpoints
+- Converting database models into JSON responses
+- Improving API reliability with proper error handling and status codes
+---
 ## 👨‍💻 Author
 
 Built by **Fernando Ramirez**
