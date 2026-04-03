@@ -6,8 +6,7 @@
 ![SQLite](https://img.shields.io/badge/SQLite-Database-003B57?logo=sqlite&logoColor=white)
 ![API](https://img.shields.io/badge/API-RESTful-01D277)
 
-### A RESTful Flask API for managing and querying cafés, with support for filtering, random selection, updates, and protected deletion.
-
+### RESTful API built with Flask and SQLAlchemy providing full CRUD operations and structured data management.
 
 ---
 
